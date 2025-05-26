@@ -1,4 +1,3 @@
-// cmd/api/main.go
 package main
 
 import (
@@ -14,10 +13,8 @@ import (
 )
 
 func main() {
-	// Cargar configuración
 	cfg := config.Load()
 
-	// Crear directorios necesarios
 	if err := os.MkdirAll("uploads", 0755); err != nil {
 		log.Fatal("Error creando directorio uploads:", err)
 	}
@@ -25,16 +22,13 @@ func main() {
 		log.Fatal("Error creando directorio templates:", err)
 	}
 
-	// Inicializar servicios
 	excelService := services.NewExcelService()
 	validationService := services.NewValidationService()
 	clientService := services.NewClientService(excelService, validationService)
 
-	// Inicializar handlers
 	clientHandler := handlers.NewClientHandler(clientService)
 	uploadHandler := handlers.NewUploadHandler(clientService)
 
-	// Configurar Gin
 	if cfg.Environment == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -60,14 +54,11 @@ func main() {
 		MaxAge:           86400,
 	}))
 
-	// Middleware adicional
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 
-	// Configurar límite de tamaño de archivo
 	router.MaxMultipartMemory = 32 << 20 // 32 MiB
 
-	// Health check
 	router.GET("/health", func(c *gin.Context) {
 		log.Printf("✅ Health check desde: %s", c.Request.Header.Get("Origin"))
 		c.JSON(http.StatusOK, gin.H{
@@ -77,7 +68,6 @@ func main() {
 		})
 	})
 
-	// Test endpoint
 	router.GET("/test", func(c *gin.Context) {
 		log.Printf("🧪 Test endpoint accessed")
 		c.JSON(http.StatusOK, gin.H{
@@ -86,7 +76,6 @@ func main() {
 		})
 	})
 
-	// Rutas API - SIN trailing slash en los grupos
 	api := router.Group("/api")
 	{
 		// Upload de archivos

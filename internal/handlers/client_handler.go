@@ -1,4 +1,3 @@
-// internal/handlers/client_handler.go
 package handlers
 
 import (
